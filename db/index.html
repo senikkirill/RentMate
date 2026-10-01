@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Гараж — прокат квадроциклов</title>
+<link rel="preconnect" href="https://spbfhympdqzynksvamxy.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://spbfhympdqzynksvamxy.supabase.co">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+window.addEventListener("error",function(e){
+ var a=document.getElementById("app");
+ if(a)a.innerHTML='<div class="card" style="color:#f87171">JS ошибка: '+String(e.message||"неизвестно").slice(0,200)+'<br><span style="color:#8b95a9">строка '+e.lineno+':'+e.colno+' — пришли это сообщение целиком</span></div>';
+},true);
+document.write('<meta na'+'me="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">');
+</script>
+<style>
+:root{--bg:#0b0f16;--card:rgba(20,26,40,.92);--line:rgba(46,58,84,.75);--txt:#e8ecf4;--mut:#8b97ad;--acc:#4e7a3d;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{background:transparent;color:var(--txt);font:16px/1.45 system-ui,-apple-system,sans-serif;padding:16px;max-width:560px;margin:0 auto}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(115deg,transparent 0 22px,rgba(94,143,74,.05) 22px 23px),repeating-linear-gradient(65deg,transparent 0 30px,rgba(46,58,84,.06) 30px 31px),radial-gradient(1200px 600px at 20% -10%,rgba(78,122,61,.12),transparent),radial-gradient(900px 500px at 110% 30%,rgba(46,58,84,.25),transparent)}
+h1{font-size:21px;font-weight:700;margin:0}
+.mut{color:var(--mut);font-size:13px}
+.sect{font-weight:700;color:var(--txt);font-size:14px;display:block;margin-top:2px}
+.row{display:flex;gap:12px;align-items:center}
+.acc{padding-top:2px}
+.mrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.empty{display:flex;gap:10px;align-items:center;color:var(--mut);font-size:13px;padding:8px 0}
+.eico{font-size:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(0,0,0,.22);position:relative}
+.card.compact{padding:10px;margin-bottom:0}
+.cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card.compact .photo{width:100%;height:90px;margin-bottom:8px}
+.photo{width:76px;height:76px;border-radius:12px;object-fit:cover;background:var(--line);flex:none;border:1px solid var(--line)}
+.big{font-size:17px;font-weight:700;letter-spacing:.1px}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line)}
+.pill.free{color:var(--ok)}.pill.out{color:var(--acc2,#5f8f4a)}.pill.overdue{color:var(--bad)}.pill.fuel{color:var(--warn)}.pill.lowfuel{color:var(--warn)}.pill.service{color:var(--warn)}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;background:var(--acc);color:#fff;font-size:16px;font-weight:700;letter-spacing:.2px;cursor:pointer;transition:transform .18s ease,filter .18s ease}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(28,36,54,.9);border:1px solid var(--line);color:var(--txt)}
+.btn.green{background:#3f9142}
+.btn.red{background:#c0392b}
+.btn.sm{width:auto;padding:8px 12px;font-size:13px;font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(22,29,45,.9);color:var(--txt);font-size:16px;margin:6px 0;transition:border-color .18s ease}
+input:focus{border-color:#5f8f4a;outline:none}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+label{display:block;margin-top:8px;font-size:13px;color:var(--mut)}
+.chkrow{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px;color:var(--txt)}
+.chkrow input{width:auto;margin:0;accent-color:#4e7a3d;transform:scale(1.25)}
+.nav{display:flex;gap:4px;margin-bottom:12px;background:rgba(12,16,26,.6);border:1px solid var(--line);border-radius:12px;padding:4px}
+.nav button{flex:1;padding:9px;border:none;border-radius:9px;background:transparent;color:var(--mut);font-size:14px;font-weight:600;cursor:pointer}
+.nav button.on{background:var(--acc);color:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(28,36,54,.9);color:var(--txt);font-size:13px;cursor:pointer}
+.chip:active{transform:scale(.95)}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.chip.g{background:var(--ok);border-color:var(--ok);color:#fff}
+.chip.y{background:var(--warn);border-color:var(--warn);color:#0b0f16}
+.gchip{max-width:56vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:bottom}
+.dmg{border:1px solid rgba(239,68,68,.45);background:rgba(239,68,68,.06);color:#f87171;border-radius:12px;padding:8px 10px;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.dbtn{padding:5px 10px;border-radius:8px;border:1px solid rgba(239,68,68,.45);background:rgba(239,68,68,.1);color:#f87171;font-size:12px;cursor:pointer;flex:none;line-height:0}
+.dbtn.ok{border-color:rgba(78,122,61,.6);background:rgba(78,122,61,.15);color:#9ccb86;font-size:12px;line-height:normal;padding:6px 10px}
+.warnplate{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;background:rgba(245,158,11,.15);color:var(--warn);margin-top:6px}
+.plate{display:flex;align-items:center;gap:6px;border-radius:10px;padding:6px 10px;font-size:12px;margin-top:8px}
+.plate.red{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.45);color:#f87171}
+.plate.yel{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.45);color:var(--warn)}
+.hist{font-size:13px;color:var(--mut);margin-top:6px}
+.hist div{padding:3px 0}
+.prow{display:block;width:100%;text-align:left;background:none;border:none;color:var(--mut);font-size:13px;padding:4px 0;cursor:pointer}
+.prow:hover{color:var(--txt)}
+details{margin-top:8px}
+summary{cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+.secbar{display:flex;align-items:center;gap:8px;padding:11px 12px;background:rgba(12,16,26,.8);border:1px solid rgba(46,58,84,.9);border-radius:10px;font-weight:800;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--txt);font-family:'Montserrat',system-ui,sans-serif}
+.secbar .secarr{margin-left:auto;transition:transform .25s ease;display:inline-block;font-size:14px;color:var(--mut)}
+details[open] .secbar .secarr{transform:rotate(180deg)}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.photobox{width:100%;height:170px;border-radius:12px;border:1px dashed rgba(95,143,74,.6);background:rgba(20,26,40,.6);display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:14px;cursor:pointer;overflow:hidden;margin:4px 0}
+.photobox img{width:100%;height:100%;object-fit:cover}
+.gcard{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.gcard.act{border-color:var(--warn);box-shadow:inset 0 0 0 1px rgba(245,158,11,.4)}
+.ghead{display:flex;align-items:center;gap:10px;padding:12px}
+.gmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;background:none;border:none;text-align:left;color:var(--txt);cursor:pointer;padding:0}
+.gname{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.gsub{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.gside{display:flex;align-items:center;gap:8px;flex:none}
+.gact{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--acc2,#5f8f4a)}
+.gpanel{border-top:1px solid var(--line);padding:10px 12px 12px;background:rgba(12,16,26,.45)}
+.grow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;font-size:14px}
+.grow .mut{max-width:60%}
+.grow input{width:100%;padding:8px;font-size:14px;margin:0}
+.tag{font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+#toast{position:fixed;top:10px;left:50%;transform:translateX(-50%) translateY(-90px);background:#241505;color:#fcd34d;border:1px solid #b45309;padding:10px 14px;border-radius:10px;font-size:13px;max-width:92%;transition:transform .25s;z-index:9}
+#toast.show{transform:translateX(-50%) translateY(0)}
+svg{vertical-align:-2px}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<div id="app"><div class="card" style="text-align:center">загрузка...</div></div>
+<script>
+const CFG={url:"https://spbfhympdqzynksvamxy.supabase.co",key:"sb_publishable_J5519F-6NkBq9jUUY2tXlw_9UT9u6AK",fn:"https://spbfhympdqzynksvamxy.supabase.co/functions/v1/api"};
+const tg=(window.Telegram&&window.Telegram.WebApp)||{ready(){},expand(){},initData:""};
+tg.ready();tg.expand();
+const FIELD_KEY=["n","a","m","e"].join("");
+const dash=v=>v==null?"—":v;
+const S={snap:null,view:"dash",editOpen:null,editId:null,partForm:null,dmg:null,km:null,mh:null,note:null,hoursSel:2,hoursVal:null,condOpen:null,delMenu:null,toMode:"mh",toMenu:null,layout:"list",dopen:{},timer:null,tn:null,tcId:null,tc:null,histUnit:null,partsUnit:null,showReturn:null,ePhotoB64:null,ePhotoType:null,gopen:null,renTg:null,medit:null,eBoard:null,eModel:null,eYear:null};
+let BUSY=false;
+
+const SVG=(p,sz)=>`<svg width="${sz||14}" height="${sz||14}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const IC_HOME=SVG('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>');
+const IC_X=SVG('<path d="M18 6 6 18M6 6l12 12"/>');
+const IC_PARTS=SVG('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>');
+const IC_HIST=SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>');
+const IC_TO=SVG('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>');
+const IC_ENGINE=SVG('<path d="M4 9v6h3l3 3h3v-3h1l2-2h2l1 2h2V9h-2l-1 2h-2l-2-2H10V6H7l-3 3z"/><path d="M7 12h4"/>');
+const TRASH=SVG('<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>');
+const PHOLD="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80"><rect width="120" height="80" fill="#141a26"/><g stroke="#55617a" stroke-width="2.5" fill="#1a2230"><circle cx="34" cy="58" r="13"/><circle cx="86" cy="58" r="13"/><path d="M26 50 Q40 42 58 42 L66 42 L64 50 Z"/><path d="M60 44 L72 26 L86 26" fill="none" stroke-linecap="round"/><path d="M48 44 L44 32" fill="none" stroke-linecap="round"/></g></svg>');
+const IMG=(u,cls)=>`<img class="${cls||"photo"}" src="${esc(u.photo_url||PHOLD)}" onerror="this.onerror=null;this.src=PHOLD">`;
+
+async function api(action,payload={}){
+ const ctl=new AbortController();
+ const t=setTimeout(()=>ctl.abort(),30000);
+ let r;
+ try{r=await fetch(CFG.fn,{method:"POST",headers:{"Content-Type":"application/json","apikey":CFG.key,"x-init-data":tg.initData||""},body:JSON.stringify({action,payload}),signal:ctl.signal});}
+ catch(e){clearTimeout(t);throw new Error("нет связи с сервером, подожди полминуты");}
+ clearTimeout(t);
+ let d;
+ try{d=await r.json();}catch(e){throw new Error("сервер вернул не JSON (HTTP "+r.status+")");}
+ if(!r.ok||d.error)throw new Error(d.error||("HTTP "+r.status));
+ return d;
+}
+function toast(m){const t=document.getElementById("toast");t.textContent=String(m).slice(0,180);t.classList.add("show");clearTimeout(S.timer);S.timer=setTimeout(()=>t.classList.remove("show"),4000);}
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDate=d=>{try{return new Date(d).toLocaleDateString("ru-RU")}catch{return d}};
+const hhmm=d=>{try{return new Date(d).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})}catch{return""}};
+const isOwner=()=>S.snap&&(S.snap.role==="owner"||S.snap.role==="admin");
+
+function classify(u,ms){
+ if(u.status_manual)return u.status_manual;
+ const um=ms.filter(m=>m.unit_id===u.id);
+ const lastOut=[...um].reverse().find(m=>m.kind==="out");
+ const openOut=lastOut&&!um.some(m=>m.kind==="in"&&new Date(m.at)>=new Date(lastOut.at));
+ if(openOut)return new Date(lastOut.due_at)<new Date()?"overdue":"out";
+ const lastService=um.filter(m=>m.kind==="service").pop();
+ const base=lastService?new Date(lastService.at):new Date(u.purchase_date||u.created_at||Date.now());
+ if(Date.now()-base>14*864e5)return"service";
+ return"free";
+}
+const LABEL={free:"свободен",out:"на выезде",overdue:"на выезде · просрочено",fuel:"нет топлива",lowfuel:"мало топлива",service:"требует ТО"};
+const PILL={free:"free",out:"out",overdue:"overdue",fuel:"fuel",lowfuel:"fuel",service:"service"};
+
+const lastMileage=(u,ms)=>{const m=ms.filter(x=>x.unit_id===u.id&&x.mileage!=null).pop();return m?m.mileage:null};
+const lastMh=(u,ms)=>{const m=ms.filter(x=>x.unit_id===u.id&&x.engine_hours!=null).pop();return m?m.engine_hours:null};
+const meterLine=(u,ms)=>{
+ const p=[];
+ if(u.track_km!==false)p.push("км: "+dash(lastMileage(u,ms)));
+ if(u.track_mh!==false)p.push("м/ч: "+dash(lastMh(u,ms)));
+ return p.join(" · ");
+};
+const useMh=(u)=>u.track_km===false&&u.track_mh!==false;
+const tripBoth=(t,u)=>{
+ const parts=[];
+ if(u.track_km!==false&&t.in&&t.out&&t.out.mileage!=null&&t.in.mileage!=null)parts.push((t.in.mileage-t.out.mileage)+" км");
+ if(u.track_mh!==false&&t.in&&t.out&&t.out.engine_hours!=null&&t.in.engine_hours!=null)parts.push(Math.round((t.in.engine_hours-t.out.engine_hours)*10)/10+" мч");
+ return parts.join(" · ")||"в рейсе";
+};
+const tripDelta=(t,u)=>{
+ if(useMh(u))return (t.in&&t.out&&t.out.engine_hours!=null&&t.in.engine_hours!=null)?(Math.round((t.in.engine_hours-t.out.engine_hours)*10)/10+" мч"):"в рейсе";
+ return (t.in&&t.out&&t.out.mileage!=null&&t.in.mileage!=null)?((t.in.mileage-t.out.mileage)+" км"):"в рейсе";
+};
+const statLine=(u,ms)=>{
+ const all=trips(u,ms);
+ const valKm=t=>(t.in&&t.out&&t.out.mileage!=null&&t.in.mileage!=null)?(t.in.mileage-t.out.mileage):0;
+ const valMh=t=>(t.in&&t.out&&t.out.engine_hours!=null&&t.in.engine_hours!=null)?(t.in.engine_hours-t.out.engine_hours):0;
+ const wk=all.filter(t=>t.out.at&&new Date(t.out.at)>=new Date(Date.now()-7*864e5));
+ const mo=all.filter(t=>t.out.at&&new Date(t.out.at)>=new Date(Date.now()-30*864e5));
+ const km=u.track_km!==false?`${Math.round(wk.reduce((s,t)=>s+valKm(t),0))} км`:null;
+ const mh=u.track_mh!==false?`${Math.round(wk.reduce((s,t)=>s+valMh(t),0)*10)/10} мч`:null;
+ const kmM=u.track_km!==false?`${Math.round(mo.reduce((s,t)=>s+valKm(t),0))} км`:null;
+ const mhM=u.track_mh!==false?`${Math.round(mo.reduce((s,t)=>s+valMh(t),0)*10)/10} мч`:null;
+ return `за неделю: ${[km,mh].filter(Boolean).join(" · ")} · за месяц: ${[kmM,mhM].filter(Boolean).join(" · ")}`;
+};
+
+function trips(u,ms){
+ const um=ms.filter(m=>m.unit_id===u.id).sort((a,b)=>new Date(a.at)-new Date(b.at));
+ const list=[];let open=null;
+ for(const m of um){if(m.kind==="out")open=m;else if(m.kind==="in"&&open){list.push({out:open,in:m});open=null;}}
+ if(open)list.push({out:open,in:null});
+ return list;
+}
+function whoLabel(id){
+ if(String(id)===String(S.snap.user_id))return"я";
+ const m=(S.snap.members||[]).find(x=>String(x.tg_id)===String(id));
+ if(m&&m[FIELD_KEY])return m[FIELD_KEY];
+ return"участник";
+}
+const URN={"обычная":"🟢","скоро":"🟡","срочная":"🔴"};
+const statusCol=p=>p.urgency?URN[p.urgency]:"var(--ok)";
+
+function condPanel(u,ms){
+ return `<div class="acc" style="border-top:1px solid var(--line);margin-top:10px;padding-top:10px">
+ ${u.track_km!==false?`<label>Пробег, км</label><input id="m_set" type="number" placeholder="Текущий: ${dash(lastMileage(u,ms))} км" value="${S.km??""}" oninput="S.km=this.value">
+ <button class="btn ghost sm" data-mset="${u.id}">Обновить пробег</button>`:""}
+ <label>Статус вручную</label><div class="chips">
+  <button type="button" class="chip ${u.status_manual==="free"?"on":""}" data-stat="free">Свободен</button>
+  <button type="button" class="chip ${u.status_manual==="out"?"on":""}" data-stat="out">На выезде</button>
+  <button type="button" class="chip ${u.status_manual==="service"?"on":""}" data-stat="service">Требует ТО</button>
+  <button type="button" class="chip ${!u.status_manual?"on":""}" data-stat="auto">Авто</button>
+ </div>
+ <button class="btn ghost sm" data-edit2="${u.id}" style="margin-top:6px">✎ Редактировать карточку</button>
+ </div>`;
+}
+
+function tripCard(t){
+ return `<div class="card">
+  <b class="sect">Маршрут · выехал ${hhmm(t.start_at)} (план ${t.planned_hours} ч)</b>
+  <div class="mut" style="margin-top:4px">${t.units.map(x=>`${esc(x.model)}, борт ${esc(x.board_no)}`).join(" · ")}</div>
+  <button class="btn red" data-tclose="${t.trip_id}" style="margin-top:10px">ЗАКОНЧИТЬ МАРШРУТ</button>
+ </div>`;
+}
+
+function garagesHTML(){
+ const gl=S.snap.garages_list||[];
+ const me=String(S.snap.user_id);
+ const rows=gl.map(g=>{
+  const gid=Number(g.garage_id);
+  const cur=gid===Number(S.snap.garage_id);
+  const own=g.role==="owner";
+  const adm=g.role==="admin";
+  const gm=(S.snap.members||[]).filter(m=>Number(m.garage_id)===gid);
+  const owner=gm.find(m=>m.role==="owner");
+  const others=gm.filter(m=>m.role!=="owner"&&String(m.tg_id)!==me);
+  const ownerTxt=owner?(String(owner.tg_id)===me?"владелец — вы":"владелец — "+esc(owner[FIELD_KEY]||owner.tg_id)):"владелец не определён";
+  const meTxt=own?"":(adm?" · вы — полный доступ":" · вы — сотрудник");
+  const partTxt=others.length?"участники: "+others.map(m=>esc(m[FIELD_KEY]||m.tg_id)).join(", "):"участники: "+gm.length;
+  const panel=(own&&S.gopen===gid)?`<div class="gpanel">
+    <div class="mut">Сотрудник заходит так: пишет боту /start и вводит код <b>${esc(S.snap.invite_code||"—")}</b>.</div>
+    ${others.length?others.map(m=>{
+      const role=m.role==="admin"?"полный доступ":"сотрудник";
+      const isEd=S.renTg===String(m.tg_id);
+      return isEd?`<div class="grow"><input id="rn_inp" value="${esc(m[FIELD_KEY]||"")}" placeholder="Новое имя"><span style="display:flex;gap:6px;flex:none">
+        <button class="dbtn ok" data-rnsave="${m.tg_id}">✓</button>
+        <button class="dbtn" data-rncancel="1">✕</button></span></div>`
+      :`<div class="grow"><span class="mut" style="max-width:50%"><b style="color:var(--txt)">${esc(m[FIELD_KEY]||m.tg_id)}</b> · <span class="tag">${role}</span></span>
+       <span style="display:flex;gap:6px;flex:none">
+        <button class="dbtn ok" data-srole="${m.tg_id}|${m.role==="admin"?0:1}">${m.role==="admin"?"Забрать доступ":"Полный доступ"}</button>
+        <button class="dbtn" data-sren="${m.tg_id}">✎</button>
+        <button class="dbtn" data-sdel="${esc(m.tg_id)}">${IC_X}</button>
+       </span></div>`;
+    }).join(""):`<div class="mut">участников пока нет</div>`}
+    <label>Имя сотрудника</label><input id="s_name" placeholder="Имя">
+    <label>Telegram ID</label><input id="s_tg" placeholder="ID из /myid">
+    <button class="btn ghost sm" data-sgadd="1">Добавить участника</button>
+   </div>`:"";
+  return `<div class="gcard ${cur?"act":""}">
+   <div class="ghead">
+    <button class="gmain" data-gsw="${gid}">
+     <span class="gname">${esc(g[FIELD_KEY]||"Гараж")}</span>
+     <span class="gsub">${ownerTxt}${meTxt}</span>
+     <span class="gsub">${partTxt}</span>
+     ${own?`<span class="gact">${S.gopen===gid?"свернуть участников":"👥 управление участниками"}</span>`:(cur?`<span class="gact">активный</span>`:"")}
+    </button>
+    <div class="gside">
+     ${own?`<button class="dbtn" data-gdel="${gid}" title="Удалить гараж">${TRASH}</button>`:`<button class="dbtn" data-gl="${gid}" title="Покинуть гараж">${IC_X}</button>`}
+    </div>
+   </div>
+   ${panel}
+  </div>`;
+ }).join("")||`<div class="card"><div class="mut">гаражей нет — создай первый в боте</div></div>`;
+ return `<button class="btn ghost" data-nav="dash" style="margin-bottom:12px">← назад</button>
+ <h1 style="margin-bottom:12px">Мои гаражи (${gl.length}/3)</h1>
+ ${rows}`;
+}
+
+function dashHTML(){
+ const{units,marks,open_trips}=S.snap;
+ const ot=open_trips||[];
+ const busy=new Set(ot.flatMap(t=>t.units.map(x=>x.unit_id)));
+ const cards=units.map(u=>{
+  const st=classify(u,marks);
+  const open=marks.filter(m=>m.unit_id===u.id&&m.kind==="in"&&m.damage&&!m.closed_at&&!m.dismissed_at);
+  const inTrip=busy.has(u.id);
+  if(S.layout==="grid")return `<div class="card compact">
+   ${IMG(u,"photo")}
+   <div class="big" style="font-size:14px">№${esc(u.board)} · ${esc(u.model)}</div>
+   <div style="margin-top:4px"><span class="pill ${PILL[st]}">${LABEL[st]}</span></div>
+   <div class="mut" style="margin-top:4px">${meterLine(u,marks)}</div>
+   <button class="btn sm" data-open="${u.id}" style="margin-top:8px">→</button>
+  </div>`;
+  return `<div class="card">
+   <div class="row">
+    ${IMG(u,"photo")}
+    <div style="flex:1;min-width:0">
+     <div class="big">№${esc(u.board)} · ${esc(u.model)}</div>
+     <div class="mut" style="margin-top:2px">${meterLine(u,marks)}${toLineHtml(u,marks)}</div>
+     <div style="margin-top:4px"><span class="pill ${PILL[st]}">${LABEL[st]}</span></div>
+    </div>
+    <button class="btn sm" data-open="${u.id}">→</button>
+   </div>
+   ${open.map(m=>`<div class="dmg"><span>⚠ ${esc(m.note||"повреждение")} (${fmtDate(m.at)}, ${whoLabel(m.who)})</span>${isOwner()?`<button class="dbtn" data-ddismiss="${u.id}">скрыть</button>`:""}</div>`).join("")}
+   ${inTrip?`<div class="mut" style="margin-top:8px">в маршруте — возврат через экран маршрута</div>`:""}
+  </div>`;
+ }).join("")||`<div class="card">Парк пуст — добавь технику в «Управление».</div>`;
+ return `<div class="nav"><button data-nav="dash" class="on">Мой гараж</button>${isOwner()?`<button data-nav="edit">Управление</button>`:""}</div>
+ <div style="display:flex;align-items:center;justify-content:space-between;margin:2px 0 14px">
+  <button class="chip" data-gview="1">${IC_HOME} <span class="gchip">${esc(S.snap.garage_name||"Гараж")}</span> ▾</button>
+  <div style="display:flex;gap:6px">
+   <button class="chip ${S.layout!=="grid"?"on":""}" data-lay="list">☰</button>
+   <button class="chip ${S.layout==="grid"?"on":""}" data-lay="grid">⊞</button>
+  </div>
+ </div>
+ <button class="btn" data-tripnew="1" style="margin-bottom:12px">Новый маршрут</button>
+ ${ot.map(t=>tripCard(t)).join("")}
+ <div class="${S.layout==="grid"?"cards-grid":""}">${cards}</div>`;
+}
+
+function toLineHtml(u,ms){
+ const mh=lastMh(u,ms);
+ if(u.service_interval_mh!=null&&u.service_base_mh!=null&&mh!=null){
+  const rem=u.service_base_mh+u.service_interval_mh-mh;
+  if(rem<=0)return` · <span style="color:var(--bad)">ТО просрочено</span>`;
+  if(rem<=15)return` · <span style="color:var(--warn)">скоро ТО · ${Math.round(rem)} мч</span>`;
+  return"";
+ }
+ if(u.service_interval_km&&u.service_base_km!=null&&lastMileage(u,ms)!=null){
+  const rem=u.service_base_km+u.service_interval_km-lastMileage(u,ms);
+  if(rem<=0)return` · <span style="color:var(--bad)">ТО просрочено</span>`;
+  if(rem<=100)return` · <span style="color:var(--warn)">скоро ТО · ${Math.round(rem)} км</span>`;
+ }
+ return"";
+}
+
+function partForm(u,part){
+ const opts=["нужно","в пути","установлено"];
+ const st=part?part.status:"нужно";
+ const urgVal=part?(part.urgency||"обычная"):"обычная";
+ const urgOpts=["обычная","скоро","срочная"];
+ const cl2=o=>o==="скоро"?"y":o==="срочная"?"r":"";
+ return `<label>Деталь</label><input id="p_title" value="${esc(part?part.title:"")}" placeholder="Название детали">
+ <label>Статус</label><div class="chips" id="p_status">${opts.map(o=>`<button type="button" class="chip ${o===st?"on":""}" data-chip="${o}">${o}</button>`).join("")}</div>
+ <div id="p_urg_row" style="display:${st==="нужно"?"block":"none"}"><label>Срочность</label><div class="chips">${urgOpts.map(o=>`<button type="button" class="chip ${cl2(o)} ${o===urgVal?"on":""}" data-uchip="${o}">${o}</button>`).join("")}</div></div>
+ <div id="p_eta_row" style="display:${st==="в пути"?"block":"none"}"><label>Ожидаемая дата</label><input id="p_eta" type="date" value="${esc(part?part.eta||"":"")}"></div>
+ <button class="btn" style="margin-top:8px" data-part-save="${u.id}">Сохранить</button>`;
+}
+
+function tripBlock(u,ms){
+ const st=classify(u,ms);
+ const onTrip=st==="out"||st==="overdue";
+ const lastKm=lastMileage(u,ms);
+ const lastH=lastMh(u,ms);
+ if(onTrip){
+  if(!S.showReturn)return `<button class="btn red" data-ret="1">ВЕРНУТЬ</button>`;
+  return `<div class="plate yel">⚠ Не забудь сверить пробег и моточасы</div>
+  <label>Повреждения</label>
+  <div class="chips"><button type="button" class="chip ${S.dmg!==true?"on":""}" data-dmg="no">Нет</button><button type="button" class="chip r ${S.dmg===true?"on":""}" data-dmg="yes">Есть</button></div>
+  ${S.dmg===true?`<label>Что повреждено</label><input id="note" placeholder="Опишите повреждение" oninput="S.note=this.value" value="${esc(S.note||"")}">`:""}
+  ${u.track_km!==false?`<label>Пробег, км</label><input id="mileage" type="number" value="${S.km??(lastKm??"")}" oninput="S.km=this.value">`:""}
+  ${u.track_mh!==false?`<label>Моточасы</label><input id="mhin" type="number" value="${S.mh??(lastH??"")}" oninput="S.mh=this.value">`:""}
+  <button class="btn green" data-in="1" style="margin-top:10px">ГОТОВО</button>
+  <button class="btn ghost sm" data-retc="1" style="margin-top:6px">Отмена</button>`;
+ }
+ if(S.tripOpen!==u.id)return `<button class="btn green" data-trip="1">В ПУТЬ</button>`;
+ const hs=[1,2,3,4,5];
+ return `<div class="plate red">⚠ Не забудь сверить пробег и моточасы</div>
+ <label>Срок аренды</label><div class="chips">${hs.map(h=>`<button type="button" class="chip ${S.hoursSel===h?"on":""}" data-hchip="${h}">${h} ч</button>`).join("")}<button type="button" class="chip ${S.hoursSel==="x"?"on":""}" data-hchip="x">своё</button></div>
+ ${S.hoursSel==="x"?`<input id="hours" type="number" placeholder="Часы" value="${S.hoursVal||""}" oninput="S.hoursVal=this.value">`:""}
+ ${u.track_km!==false?`<label>Пробег, км</label><input id="mileage" type="number" value="${S.km??(lastKm??"")}" oninput="S.km=this.value">`:""}
+ ${u.track_mh!==false?`<label>Моточасы</label><input id="mh" type="number" value="${S.mh??(lastH??"")}" oninput="S.mh=this.value">`:""}
+ <button class="btn green" data-out="1" style="margin-top:10px">ВЫЕХАЛИ</button>
+ <button class="btn ghost sm" data-tripc="1" style="margin-top:6px">Отмена</button>`;
+}
+
+function toBlock(u,ms){
+ const mh=lastMh(u,ms);
+ const km=lastMileage(u,ms);
+ let rem=null,unit=null;
+ if(u.service_interval_mh!=null&&u.service_base_mh!=null&&mh!=null){rem=u.service_base_mh+u.service_interval_mh-mh;unit="мч";}
+ else if(u.service_interval_km&&u.service_base_km!=null&&km!=null){rem=u.service_base_km+u.service_interval_km-km;unit="км";}
+ const hasInt=u.service_interval_mh!=null||u.service_interval_km;
+ let body;
+ if(!hasInt)body=`<div class="plate yel">⚠ интервал ТО не задан</div>`;
+ else if(rem==null)body=`<div class="mut">нужна отметка, чтобы считать ТО</div>`;
+ else if(rem<=0)body=`<div class="dmg"><span>ТО просрочено на ${Math.round(-rem)} ${unit}</span></div>`;
+ else if(rem<=(unit==="мч"?15:100))body=`<span class="warnplate">скоро ТО · осталось ${Math.round(rem)} ${unit}</span>`;
+ else body=`<div class="mut">следующее ТО через ${Math.round(rem)} ${unit}</div>`;
+ const intTxt=u.service_interval_mh!=null?`${u.service_interval_mh} мч`:(u.service_interval_km?`${u.service_interval_km} км`:null);
+ const nextTxt=rem!=null&&unit?`следующее ТО через ${Math.round(rem)} ${unit}`:null;
+ const summary=intTxt?`<div class="mut" style="margin-top:4px">Ваш текущий интервал ТО: <b>${intTxt}</b>${nextTxt?" · "+nextTxt:""}</div>`:"";
+ if(!isOwner())return body+summary;
+ if(!hasInt||S.toMenu===u.id){
+  const mode=S.toMode||"mh";
+  return `${body}${summary}
+  <label>Отсчёт по</label><div class="chips">
+   <button type="button" class="chip ${mode==="mh"?"on":""}" data-tomode="mh">Моточасам</button>
+   <button type="button" class="chip ${mode==="km"?"on":""}" data-tomode="km">Пробегу</button>
+  </div>
+  <label>${mode==="mh"?"Интервал ТО, м/ч":"Интервал ТО, км"}</label><input id="to_interval" type="number" placeholder="${mode==="mh"?"100":"500"}">
+  <button class="btn ghost sm" data-toset="${u.id}">Задать для этой единицы</button>
+  <button class="btn ghost sm" data-tosetall="1" style="margin-top:6px">Задать для всего гаража</button>`;
+ }
+ return `${body}${summary}
+ <div class="mrow" style="margin-top:6px">
+  <button class="btn ghost sm" data-todone="${u.id}">ТО сделано</button>
+  <button class="btn ghost sm" data-tomenu="${u.id}">⋮ Изменить интервал</button>
+ </div>`;
+}
+
+function menuRow(kind,uid,extra){
+ return `<div class="mhead"><span class="mut">${extra||""}</span><button class="btn ghost sm" data-${kind}="${uid}">⋮ меню</button></div>`;
+}
+
+function markEditForm(mark){
+ return `<div class="grow" style="flex-wrap:wrap;background:rgba(12,16,26,.5);border-radius:10px;padding:8px;margin-top:4px">
+  ${mark.mileage!=null?`<label style="margin-top:0">Пробег, км</label><input id="mu_km" type="number" value="${mark.mileage}">`:""}
+  ${mark.engine_hours!=null?`<label style="margin-top:0">Моточасы</label><input id="mu_mh" type="number" value="${mark.engine_hours}">`:""}
+  <div class="mrow"><button class="btn ghost sm" data-musave="${mark.id}">✓ Сохранить</button><button class="btn ghost sm" data-mucancel="1">Отмена</button></div>
+ </div>`;
+}
+
+function unitDetail(u){
+ const{marks,parts}=S.snap;
+ const st=classify(u,marks);
+ const um=marks.filter(m=>m.unit_id===u.id);
+ const open=um.filter(m=>m.kind==="in"&&m.damage&&!m.closed_at);
+ const ups=parts.filter(p=>p.unit_id===u.id);
+ const all=trips(u,marks);
+ return `<button class="btn ghost" data-nav="dash" style="margin-bottom:12px">← назад</button>
+ <div class="card">
+  <div class="row"><img class="photo" src="${esc(u.photo_url||PHOLD)}" onerror="this.onerror=null;this.src=PHOLD">
+  <div style="flex:1;min-width:0"><div class="big">№${esc(u.board)} · ${esc(u.model)}</div>
+  <div class="mut" style="margin-top:2px">${esc(u.year||"")?esc(u.year)+" · ":""}${meterLine(u,marks)}</div>
+  <div style="margin-top:4px"><span class="pill ${PILL[st]}">${LABEL[st]}</span></div></div>
+  ${isOwner()?`<button class="btn ghost sm" data-cond="${u.id}">⋮</button>`:""}</div>
+  ${S.condOpen===u.id&&isOwner()?condPanel(u,marks):""}
+ </div>
+ ${S.editId===u.id?editForm(u):""}
+ <div class="card">${tripBlock(u,marks)}</div>
+ <div class="card">
+  <b class="sect">Повреждения</b>
+  ${open.map(m=>`<div class="dmg"><span>⚠ ${esc(m.note||"повреждение")} (${fmtDate(m.at)}, ${whoLabel(m.who)})</span>${isOwner()?`<button class="dbtn" data-dclose="${u.id}">убрать</button>`:""}</div>`).join("")||`<div class="mut">открытых нет</div>`}
+ </div>
+ <details class="card" data-pers="dp${u.id}"><summary class="secbar"><span>${IC_PARTS} Запчасти</span><span class="secarr">▾</span></summary>
+  <div class="acc" style="margin-top:8px">
+   ${isOwner()&&ups.length?menuRow("pdellast",u.id,"Управление"):""}
+   ${S.delMenu==="p"+u.id&&isOwner()?`<div class="mrow"><button class="btn ghost sm" data-pdellast="${u.id}">Удалить последнюю</button><button class="btn ghost sm" data-pclear="${u.id}">Очистить всё</button></div>`:""}
+   ${ups.slice(-3).reverse().map(p=>`<button class="prow" data-pedit="${p.id}">${esc(p.title)} — <span style="color:${statusCol(p)}">${esc(p.status)}</span>${p.urgency?" "+URN[p.urgency]:""}${p.status==="в пути"&&p.eta?" · до "+fmtDate(p.eta):""}</button>`).join("")||`<div class="empty"><div>Запчастей пока нет</div></div>`}
+   <div class="mrow"><button class="btn ghost sm" data-partsview="${u.id}">Все запчасти →</button><button class="btn ghost sm" data-part="${u.id}">+ запчасть</button></div>
+   ${S.partForm&&S.partForm.unit_id===u.id?partForm(u,S.partForm.part):""}
+  </div>
+ </details>
+ <details class="card" data-pers="dh${u.id}"><summary class="secbar"><span>${IC_HIST} История выездов</span><span class="secarr">▾</span></summary>
+  <div class="acc" style="margin-top:8px">
+   <div class="mut"><b>${statLine(u,marks)}</b></div>
+   ${isOwner()&&um.length?menuRow("hdellast",u.id,"Управление"):""}
+   ${S.delMenu==="h"+u.id&&isOwner()?`<div class="mrow"><button class="btn ghost sm" data-hdellast="${u.id}">Удалить последний выезд</button><button class="btn ghost sm" data-hclear="${u.id}">Очистить всё (пробег сохранится)</button></div>`:""}
+   <div class="hist">${all.slice(-6).reverse().length?all.slice(-6).reverse().map(t=>`<div>${fmtDate(t.out.at)} · ${tripBoth(t,u)}${t.in&&t.in.damage?" ⚠":""} · ${whoLabel((t.in||t.out).who)}</div>`).join(""):`<div class="empty"><span class="eico">${IC_HIST}</span><div><div>Пока нет выездов</div><div class="mut">История появится после первого выезда</div></div></div>`}</div>
+   <button class="btn ghost sm" data-histview="${u.id}" style="margin-top:6px">Вся история →</button>
+  </div>
+ </details>
+ <details class="card" data-pers="to${u.id}"><summary class="secbar"><span>${IC_ENGINE} ТО</span><span class="secarr">▾</span></summary>
+  <div class="acc" style="margin-top:8px">${toBlock(u,marks)}</div>
+ </details>`;
+}
+
+function histHTML(u){
+ const all=trips(u,S.snap.marks);
+ return `<button class="btn ghost" data-open="${u.id}" style="margin-bottom:12px">← назад</button>
+ <h1 style="margin-bottom:8px">История · ${esc(u.board)}</h1>
+ <div class="card"><div class="mut"><b>${statLine(u,S.snap.marks)}</b></div></div>
+ ${all.slice().reverse().map(t=>`<div class="card" style="padding:10px 14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+  <div class="hist" style="margin-top:0;flex:1">${fmtDate(t.out.at)} · ${tripBoth(t,u)}${t.in&&t.in.damage?" ⚠":""} · ${whoLabel((t.in||t.out).who)}
+  ${S.medit===t.out.id?markEditForm(t.out):""}
+  </div>
+  ${isOwner()?`<span style="display:flex;gap:6px;flex:none"><button class="dbtn ok" data-medit="${t.out.id}">✎</button><button class="dbtn" data-tdel="${t.trip_id}">${IC_X}</button></span>`:""}
+ </div></div>`).join("")||`<div class="card"><div class="mut">пусто</div></div>`}`;
+}
+
+function partsHTML(u){
+ const ps=S.snap.parts.filter(p=>p.unit_id===u.id);
+ return `<button class="btn ghost" data-open="${u.id}" style="margin-bottom:12px">← назад</button>
+ <h1 style="margin-bottom:8px">Запчасти · ${esc(u.board)}</h1>
+ ${ps.map(p=>{
+  const editing=S.partForm&&S.partForm.part&&S.partForm.part.id===p.id;
+  return `<div class="card" style="padding:10px 14px">${editing?partForm(u,p):`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+   <button class="prow" data-pedit="${p.id}" style="flex:1">${esc(p.title)} — <span style="color:${statusCol(p)}">${esc(p.status)}</span>${p.urgency?" "+URN[p.urgency]:""}${p.status==="в пути"&&p.eta?" · до "+fmtDate(p.eta):""}</button>
+   ${isOwner()?`<button class="dbtn" data-pdel="${p.id}">${IC_X}</button>`:""}
+  </div>`}</div>`;
+ }).join("")||`<div class="card"><div class="mut">пусто</div></div>`}
+ <button class="btn ghost sm" data-part="${u.id}">+ запчасть</button>
+ ${S.partForm&&!S.partForm.part?partForm(u,null):""}`;
+}
+
+function tripNewHTML(){
+ const{units,marks,open_trips}=S.snap;
+ const busy=new Set((open_trips||[]).flatMap(t=>t.units.map(x=>x.unit_id)));
+ const free=units.filter(u=>{const st=classify(u,marks);return st!=="out"&&st!=="overdue"&&!busy.has(u.id);});
+ const hs=[1,2,3,4,5];
+ const hours=S.tn&&S.tn.hours||2;
+ const sel=S.tn&&S.tn.sel||[];
+ const done=S.tn&&S.tn.done||{};
+ const openU=S.tn&&S.tn.open;
+ const ready=sel.filter(id=>done[id]);
+ const head=`<button class="btn ghost" data-nav="dash" style="margin-bottom:12px">← назад</button>
+ <h1 style="margin-bottom:8px">Новый маршрут</h1>
+ <div class="card"><label>Длительность маршрута</label><div class="chips">${hs.map(h=>`<button type="button" class="chip ${hours===h?"on":""}" data-th="${h}">${h} ч</button>`).join("")}<button type="button" class="chip ${typeof hours!=="number"?"on":""}" data-th="x">своё</button></div>
+ ${typeof hours!=="number"?`<input id="thours" type="number" placeholder="Часы" value="${S.tn.hVal||""}" oninput="S.tn.hVal=this.value">`:""}
+ </div>`;
+ const foot=`<button class="btn green" data-togo="1" ${ready.length?"":"disabled"}>ВЫЕЗД (${ready.length})</button>
+ <button class="btn ghost sm" data-nav="dash" style="margin-top:6px">Отмена</button>`;
+ if(openU){
+  const u=units.find(x=>x.id===openU);
+  if(u){
+   const lastKm=lastMileage(u,marks),lastH=lastMh(u,marks);
+   return head+`<div class="card">
+    <b class="sect">Машина</b>
+    <button type="button" class="chip y" data-upick="${u.id}" style="display:inline-block;margin-top:6px">№${esc(u.board)} · ${esc(u.model)}</button>
+    <div class="plate red">⚠ Не забудь сверить пробег и моточасы</div>
+    ${u.track_km!==false?`<label>Пробег, км</label><input type="number" value="${S.tn.km[u.id]??(lastKm??"")}" oninput="S.tn.km[${u.id}]=this.value">`:""}
+    ${u.track_mh!==false?`<label>Моточасы</label><input type="number" value="${S.tn.mh[u.id]??(lastH??"")}" oninput="S.tn.mh[${u.id}]=this.value">`:""}
+    <button class="btn ghost sm" data-tdone="${u.id}" style="margin-top:8px">Готово</button>
+   </div>`+foot;
+  }
+ }
+ const chips=free.map(u=>{
+  const isDone=done[u.id], isSel=sel.includes(u.id);
+  const cls=isDone?"g":(isSel?"y":"");
+  return `<button type="button" class="chip ${cls}" data-upick="${u.id}" style="display:inline-block;margin:4px 4px 0 0">${isDone?"✓ ":""}№${esc(u.board)} · ${esc(u.model)}</button>`;
+ }).join("")||`<div class="mut">свободных машин нет</div>`;
+ return head+`<div class="card"><b class="sect">Выбери машины по очереди (${ready.length})</b><div style="margin-top:6px">${chips}</div></div>`+foot;
+}
+
+function tripCloseHTML(){
+ const t=(S.snap.open_trips||[]).find(x=>x.trip_id===S.tcId);
+ if(!t)return `<div class="card">маршрут уже закрыт</div><button class="btn ghost" data-nav="dash">← назад</button>`;
+ return `<button class="btn ghost" data-nav="dash" style="margin-bottom:12px">← назад</button>
+ <h1 style="margin-bottom:8px">Возврат маршрута</h1>
+ ${t.units.map(x=>{
+  return `<div class="card">
+   <b class="sect">№${esc(x.board_no)} · ${esc(x.model)}</b>
+   <div class="plate yel">⚠ Не забудь сверить пробег и моточасы</div>
+   ${x.track_km!==false?`<label>Пробег, км</label><input type="number" value="${S.tc.km&&S.tc.km[x.unit_id]!=null?S.tc.km[x.unit_id]:(x.out.mileage??"")}" oninput="S.tc.km[${x.unit_id}]=this.value">`:""}
+   ${x.track_mh!==false?`<label>Моточасы</label><input type="number" value="${S.tc.mh&&S.tc.mh[x.unit_id]!=null?S.tc.mh[x.unit_id]:(x.out.engine_hours??"")}" oninput="S.tc.mh[${x.unit_id}]=this.value">`:""}
+   <label>Повреждения</label><div class="chips">
+    <button type="button" class="chip ${S.tc.dmg&&S.tc.dmg[x.unit_id]!==true?"on":""}" data-tdmg="${x.unit_id}|no">Нет</button>
+    <button type="button" class="chip r ${S.tc.dmg&&S.tc.dmg[x.unit_id]===true?"on":""}" data-tdmg="${x.unit_id}|yes">Есть</button>
+   </div>
+   ${S.tc.dmg&&S.tc.dmg[x.unit_id]===true?`<label>Что повреждено</label><input placeholder="Опишите повреждение" value="${S.tc.note&&S.tc.note[x.unit_id]||""}" oninput="S.tc.note[${x.unit_id}]=this.value">`:""}
+  </div>`;
+ }).join("")}
+ <button class="btn" data-tfin="1">ЗАВЕРШИТЬ</button>`;
+}
+
+function nextBoard(units){
+ const used=new Set();
+ for(const u of units){const n=parseInt(String(u.board).replace(/\D/g,""),10);if(!Number.isNaN(n)&&n>0)used.add(n);}
+ let n=1;while(used.has(n))n++;
+ return String(n).padStart(3,"0");
+}
+
+function editForm(e,units){
+ const isNew=!e.id;
+ const boardVal=isNew?nextBoard(units||[]):e.board;
+ const bv=S.eBoard??boardVal, mv=S.eModel??(e.model||""), yv=S.eYear??(e.year??"");
+ return `<div class="card" style="position:relative">
+  <button class="btn ghost sm" data-eclose="1" style="position:absolute;top:8px;right:8px;width:auto;padding:4px 10px">✕</button>
+  <label>Бортовой номер</label><input id="e_board" value="${esc(bv)}" oninput="S.eBoard=this.value">
+  <label>Модель</label><input id="e_model" value="${esc(mv)}" oninput="S.eModel=this.value">
+  <label>Год</label><input id="e_year" type="number" value="${esc(yv)}" oninput="S.eYear=this.value">
+  <div class="photobox" data-photopick="1">${S.ePhotoB64?`<img src="data:${S.ePhotoType||"image/jpeg"};base64,${S.ePhotoB64}">`:(e.photo_url?`<img src="${esc(e.photo_url)}" onerror="this.onerror=null;this.parentNode.innerHTML='Заменить фото'">`:"Добавить фото")}</div>
+  <input id="e_file" type="file" accept="image/*" style="display:none">
+  <label class="chkrow"><input type="checkbox" id="e_tkm" ${e.track_km!==false?"checked":""}> учитывать пробег (км)</label>
+  <label>Пробег, км</label><input id="e_km" type="number" placeholder="Текущий: ${dash(lastMileage(e,S.snap.marks))} км" value="${S.eKm??""}" oninput="S.eKm=this.value">
+  <label class="chkrow"><input type="checkbox" id="e_tmh" ${e.track_mh!==false?"checked":""}> учитывать моточасы</label>
+  <label>Моточасы</label><input id="e_mh" type="number" placeholder="Текущие: ${dash(lastMh(e,S.snap.marks))} мч" value="${S.eMh??""}" oninput="S.eMh=this.value">
+  <button class="btn" style="margin-top:8px" data-save="${e.id||""}">Сохранить</button>
+  <button class="btn ghost sm" data-backcard="1" style="margin-top:6px">← в карточку</button>
+ </div>`;
+}
+
+function editHTML(){
+ const{units}=S.snap;
+ return `<div class="nav"><button data-nav="dash">Мой гараж</button><button data-nav="edit" class="on">Управление</button></div><h1 style="margin-bottom:12px">Каталог техники</h1>
+ ${units.map(u=>`<div class="card"><div class="row"><img class="photo" src="${esc(u.photo_url||PHOLD)}" onerror="this.onerror=null;this.src=PHOLD">
+  <div style="flex:1" class="big">№${esc(u.board)} · ${esc(u.model)}</div>
+  <button class="btn ghost sm" data-edit="${u.id}">✎</button>
+  <button class="btn ghost sm" data-del="${u.id}">${TRASH}</button>
+ </div></div>${S.editId===u.id?editForm(u,units):""}`).join("")}
+ ${S.editId===0?editForm({board:"",model:"",year:"",photo_url:""},units):""}
+ <button class="btn ghost" data-new="1" style="margin-bottom:16px;margin-top:4px">+ Новая единица</button>
+ <div class="mut">Сотрудники и коды доступа — в разделе «Мои гаражи».</div>`;
+}
+
+function loadDopen(){
+ try{return JSON.parse(localStorage.getItem("ga_dopen_"+S.snap.garage_id)||"{}");}catch(e){return{};}
+}
+function saveDopen(){
+ try{localStorage.setItem("ga_dopen_"+S.snap.garage_id,JSON.stringify(S.dopen));}catch(e){}
+}
+
+function render(){
+ const a=document.getElementById("app");
+ if(!S.snap){a.innerHTML=`<div class="card" style="text-align:center">загрузка...</div>`;return;}
+ S.dopen=Object.assign(S.dopen,loadDopen());
+ const openMap={};document.querySelectorAll("details[data-pers]").forEach(d=>{openMap[d.dataset.pers]=d.open});
+ const U=id=>S.snap.units.find(x=>x.id===id);
+ const uOp=S.editOpen?U(S.editOpen):null;
+ const uHist=S.histUnit?U(S.histUnit):null;
+ const uParts=S.partsUnit?U(S.partsUnit):null;
+ a.innerHTML=
+  S.view==="edit"?editHTML():
+  S.view==="garages"?garagesHTML():
+  S.view==="trip_new"?tripNewHTML():
+  S.view==="trip_close"?tripCloseHTML():
+  S.view==="history"&&uHist?histHTML(uHist):
+  S.view==="parts"&&uParts?partsHTML(uParts):
+  (uOp?unitDetail(uOp):dashHTML());
+ document.querySelectorAll("details[data-pers]").forEach(d=>{if(d.dataset.pers in openMap)d.open=openMap[d.dataset.pers];});
+}
+
+function clearEdit(){S.eBoard=null;S.eModel=null;S.eYear=null;S.eKm=null;S.eMh=null;S.ePhotoB64=null;S.ePhotoType=null;}
+
+document.addEventListener("click",async ev=>{
+ const SEL="[data-nav],[data-lay],[data-det],[data-open],[data-edit],[data-edit2],[data-new],[data-eclose],[data-backcard],[data-save],[data-del],[data-mset],[data-stat],[data-part],[data-part-save],[data-pedit],[data-pmenu],[data-pdellast],[data-pclear],[data-hmenu],[data-hdellast],[data-hclear],[data-back],[data-trip],[data-tripc],[data-hchip],[data-out],[data-in],[data-ret],[data-retc],[data-dmg],[data-dclose],[data-ddismiss],[data-toset],[data-tosetall],[data-todone],[data-tomenu],[data-tomode],[data-chip],[data-uchip],[data-sadd],[data-sdel],[data-sgadd],[data-srole],[data-sren],[data-rnsave],[data-rncancel],[data-tripnew],[data-tclose],[data-upick],[data-th],[data-togo],[data-tfin],[data-tdone],[data-tdmg],[data-histview],[data-partsview],[data-tdel],[data-medit],[data-musave],[data-mucancel],[data-pdel],[data-gview],[data-gsw],[data-gl],[data-gdel],[data-photopick]";
+ const b=ev.target.closest(SEL);
+ if(!b)return;
+ if(b.closest("summary"))ev.preventDefault();
+ if(BUSY)return;
+ const g=id=>{const el=document.getElementById(id);return el?el.value:""};
+ try{
+  BUSY=true;
+  if(b.dataset.lay){S.layout=b.dataset.lay;render();return;}
+  if(b.dataset.det!==undefined){
+   if(!ev.target.closest("summary"))return;
+   const[uid,sec]=b.dataset.det.split("|");
+   S.dopen[uid]=S.dopen[uid]||{};
+   S.dopen[uid][sec]=!b.open;
+   saveDopen();
+   return;
+  }
+  if(b.dataset.ret){S.showReturn=true;S.km=null;S.mh=null;render();return;}
+  if(b.dataset.retc){S.showReturn=null;render();return;}
+  if(b.dataset.photopick){const f=document.getElementById("e_file");if(f)f.click();return;}
+  if(b.dataset.chip){b.parentElement.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+   const st=b.dataset.chip,etaR=document.getElementById("p_eta_row"),urgR=document.getElementById("p_urg_row");
+   if(etaR){etaR.style.display=st==="в пути"?"block":"none";if(st!=="в пути"){const e=document.getElementById("p_eta");if(e)e.value="";}}
+   if(urgR){urgR.style.display=st==="нужно"?"block":"none";}
+   return;}
+  if(b.dataset.uchip){b.parentElement.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));b.classList.add("on");return;}
+  if(b.dataset.stat!==undefined){
+   await api("status_set",{unit_id:S.condOpen,status:b.dataset.stat==="auto"?null:b.dataset.stat});
+   S.snap=await api("snapshot");toast("Статус обновлён");render();return;
+  }
+  if(b.dataset.hchip){S.hoursSel=b.dataset.hchip==="x"?"x":Number(b.dataset.hchip);render();return;}
+  if(b.dataset.gview){S.view="garages";render();return;}
+  if(b.dataset.gsw!==undefined){
+   const gid=Number(b.dataset.gsw);
+   if(gid===Number(S.snap.garage_id)){
+    if(isOwner()){S.gopen=S.gopen===gid?null:gid;render();}
+    return;
+   }
+   await api("garage_switch",{garage_id:gid});
+   S.snap=await api("snapshot");
+   S.view="dash";S.editOpen=null;S.tripOpen=null;S.showReturn=null;S.partForm=null;S.condOpen=null;S.delMenu=null;S.histUnit=null;S.partsUnit=null;S.editId=null;S.tn=null;S.tc=null;S.tcId=null;S.gopen=null;S.renTg=null;S.medit=null;
+   toast("Гараж переключён");render();return;
+  }
+  if(b.dataset.gl!==undefined){
+   if(!confirm("Покинуть этот гараж?"))return;
+   await api("garage_leave",{garage_id:Number(b.dataset.gl)});
+   S.snap=await api("snapshot");
+   S.view="garages";
+   S.editOpen=null;S.tripOpen=null;S.showReturn=null;S.partForm=null;S.condOpen=null;S.delMenu=null;S.gopen=null;S.renTg=null;S.medit=null;
+   toast("Ты покинул гараж");render();return;
+  }
+  if(b.dataset.gdel!==undefined){
+   if(!confirm("Удалить гараж? Техника, история и доступ участников пропадут навсегда."))return;
+   await api("garage_delete",{garage_id:Number(b.dataset.gdel)});
+   S.snap=await api("snapshot");
+   S.view="garages";S.editOpen=null;S.tripOpen=null;S.showReturn=null;S.partForm=null;S.condOpen=null;S.delMenu=null;S.gopen=null;S.renTg=null;S.medit=null;
+   toast("Гараж удалён");render();return;
+  }
+  if(b.dataset.srole!==undefined){
+   const[tid,adm]=b.dataset.srole.split("|");
+   await api("staff_role",{tg_id:tid,admin:adm==="1"});
+   S.snap=await api("snapshot");toast(adm==="1"?"Полный доступ выдан":"Полный доступ снят");render();return;
+  }
+  if(b.dataset.sren!==undefined){S.renTg=String(b.dataset.sren);render();return;}
+  if(b.dataset.rncancel!==undefined){S.renTg=null;render();return;}
+  if(b.dataset.rnsave!==undefined){
+   const nm=g("rn_inp");
+   if(!nm){toast("Введи имя");return;}
+   await api("staff_rename",{tg_id:String(b.dataset.rnsave), [FIELD_KEY]: nm});
+   S.snap=await api("snapshot");S.renTg=null;toast("Имя обновлено");render();return;
+  }
+  if(b.dataset.sgadd!==undefined){
+   const nm=g("s_name"),tid=g("s_tg");
+   if(!nm||!tid){toast("Нужны имя и Telegram ID");return;}
+   await api("staff_save",{ [FIELD_KEY]: nm, tg_id: tid });
+   S.snap=await api("snapshot");toast("Участник добавлен");render();return;
+  }
+  if(b.dataset.sdel!==undefined){
+   if(!confirm("Убрать участника из гаража?"))return;
+   const mem=(S.snap.members||[]).find(x=>String(x.tg_id)===String(b.dataset.sdel));
+   if(mem&&mem.role==="admin") await api("staff_role",{tg_id:b.dataset.sdel,admin:false});
+   await api("staff_del",{tg_id:b.dataset.sdel});
+   S.snap=await api("snapshot");toast("Участник убран");render();return;
+  }
+  if(b.dataset.toset!==undefined){
+   const mode=S.toMode||"mh";
+   const v=Number(g("to_interval"));
+   if(!v){toast("введи интервал");return;}
+   await api("service_set",{unit_id:Number(b.dataset.toset),interval_km:mode==="km"?v:null,interval_mh:mode==="mh"?v:null});
+   S.snap=await api("snapshot");S.toMenu=null;toast("Интервал ТО задан");render();return;
+  }
+  if(b.dataset.tosetall!==undefined){
+   const mode=S.toMode||"mh";
+   const v=Number(g("to_interval"));
+   if(!v){toast("введи интервал");return;}
+   await api("service_set_all",{interval_km:mode==="km"?v:null,interval_mh:mode==="mh"?v:null});
+   S.snap=await api("snapshot");S.toMenu=null;toast("Интервал ТО задан для всего гаража");render();return;
+  }
+  if(b.dataset.todone!==undefined){
+   await api("service_done",{unit_id:Number(b.dataset.todone)});
+   S.snap=await api("snapshot");toast("Отсчёт ТО сброшен");render();return;
+  }
+  if(b.dataset.tomenu!==undefined){S.toMenu=S.toMenu===Number(b.dataset.tomenu)?null:Number(b.dataset.tomenu);render();return;}
+  if(b.dataset.tomode!==undefined){S.toMode=b.dataset.tomode;render();return;}
+  if(b.dataset.cond!==undefined){S.condOpen=S.condOpen===Number(b.dataset.cond)?null:Number(b.dataset.cond);render();return;}
+  if(b.dataset.pmenu!==undefined){S.delMenu=S.delMenu==="p"+b.dataset.pmenu?null:"p"+b.dataset.pmenu;render();return;}
+  if(b.dataset.hmenu!==undefined){S.delMenu=S.delMenu==="h"+b.dataset.hmenu?null:"h"+b.dataset.hmenu;render();return;}
+  if(b.dataset.nav){S.view=b.dataset.nav;S.editId=null;S.editOpen=null;S.tripOpen=null;S.condOpen=null;S.delMenu=null;S.tn=null;S.tcId=null;S.tc=null;S.showReturn=null;S.medit=null;render();}
+  else if(b.dataset.tripnew){S.tn={sel:[],done:{},km:{},mh:{},hours:2,hVal:null,open:null};S.view="trip_new";render();}
+  else if(b.dataset.upick!==undefined){
+   const id=Number(b.dataset.upick);
+   const i=S.tn.sel.indexOf(id);
+   if(i>=0){ S.tn.open=(S.tn.open===id)?null:id; }
+   else { S.tn.sel.push(id); S.tn.open=id; }
+   render();return;
+  }
+  if(b.dataset.th!==undefined){S.tn.hours=b.dataset.th==="x"?"x":Number(b.dataset.th);render();return;}
+  if(b.dataset.tdone!==undefined){
+   const id=Number(b.dataset.tdone);
+   S.tn.done[id]=true;S.tn.open=null;render();return;
+  }
+  if(b.dataset.togo){
+   const hours=S.tn.hours==="x"?(Number(S.tn.hVal)||2):S.tn.hours;
+   const ready=S.tn.sel.filter(id=>S.tn.done[id]);
+   await api("trip_open",{units:ready.map(id=>({unit_id:id,fuel:0,mileage:S.tn.km[id]?Number(S.tn.km[id]):null,mh:S.tn.mh[id]?Number(S.tn.mh[id]):null})),planned_hours:hours});
+   S.snap=await api("snapshot");S.tn=null;S.view="dash";toast("Маршрут начат");render();return;
+  }
+  if(b.dataset.tclose!==undefined){S.tcId=Number(b.dataset.tclose);S.tc={km:{},mh:{},dmg:{},note:{}};S.view="trip_close";render();return;}
+  if(b.dataset.tdmg!==undefined){
+   const[id,v]=b.dataset.tdmg.split("|");S.tc.dmg[Number(id)]=v==="yes";render();return;
+  }
+  if(b.dataset.tfin){
+   const t=(S.snap.open_trips||[]).find(x=>x.trip_id===S.tcId);
+   await api("trip_close",{trip_id:S.tcId,units:t.units.map(x=>({unit_id:x.unit_id,fuel:0,mileage:S.tc.km[x.unit_id]?Number(S.tc.km[x.unit_id]):null,mh:S.tc.mh[x.unit_id]?Number(S.tc.mh[x.unit_id]):null,damage:S.tc.dmg[x.unit_id]===true?"yes":"no",note:S.tc.note[x.unit_id]||null}))});
+   S.snap=await api("snapshot");S.tcId=null;S.tc=null;S.view="dash";toast("Маршрут закрыт");render();return;
+  }
+  else if(b.dataset.histview!==undefined){S.histUnit=Number(b.dataset.histview);S.view="history";render();return;}
+  else if(b.dataset.partsview!==undefined){S.partsUnit=Number(b.dataset.partsview);S.partForm=null;S.view="parts";render();return;}
+  else if(b.dataset.medit!==undefined){S.medit=Number(b.dataset.medit);render();return;}
+  else if(b.dataset.mucancel!==undefined){S.medit=null;render();return;}
+  else if(b.dataset.musave!==undefined){
+   await api("mark_update",{id:Number(b.dataset.musave),mileage:g("mu_km")?Number(g("mu_km")):null,engine_hours:g("mu_mh")?Number(g("mu_mh")):null});
+   S.snap=await api("snapshot");S.medit=null;toast("Отметка обновлена");render();return;
+  }
+  else if(b.dataset.tdel!==undefined){
+   if(!confirm("Удалить этот маршрут (выезд и возврат)?"))return;
+   await api("trip_remove",{trip_id:Number(b.dataset.tdel)});
+   S.snap=await api("snapshot");toast("Маршрут удалён");render();return;
+  }
+  else if(b.dataset.pdel!==undefined){
+   if(!confirm("Удалить эту запчасть?"))return;
+   await api("part_del",{id:Number(b.dataset.pdel)});
+   S.snap=await api("snapshot");toast("Удалено");render();return;
+  }
+  else if(b.dataset.open!==undefined){S.editOpen=Number(b.dataset.open);S.partForm=null;S.dmg=null;S.km=null;S.mh=null;S.note=null;S.tripOpen=null;S.showReturn=null;S.delMenu=null;S.medit=null;S.view="dash";render();}
+  else if(b.dataset.edit2!==undefined){clearEdit();S.editId=Number(b.dataset.edit2);S.view="dash";S.editOpen=Number(b.dataset.edit2);render();}
+  else if(b.dataset.edit!==undefined){clearEdit();S.editId=Number(b.dataset.edit);render();}
+  else if(b.dataset.new){clearEdit();S.editId=0;render();}
+  else if(b.dataset.eclose){clearEdit();S.editId=null;render();}
+  else if(b.dataset.backcard!==undefined){clearEdit();S.editId=null;S.view="dash";render();}
+  else if(b.dataset.save!==undefined){
+   const tkm=document.getElementById("e_tkm"),tmh=document.getElementById("e_tmh");
+   const res=await api("unit_save",{id:b.dataset.save?Number(b.dataset.save):undefined,board:g("e_board"),model:g("e_model"),year:g("e_year")?Number(g("e_year")):null,photo_url:null,mileage:S.eKm?Number(S.eKm):null,mh:S.eMh?Number(S.eMh):null,track_km:tkm?tkm.checked:true,track_mh:tmh?tmh.checked:true});
+   let unitId=res.id||(b.dataset.save?Number(b.dataset.save):null);
+   if(S.ePhotoB64&&unitId){
+    try{
+     const d=await api("photo_upload",{unit_id:unitId,filename:"photo.jpg",content_type:S.ePhotoType||"image/jpeg",data_base64:S.ePhotoB64});
+     if(d.url)await api("unit_save",{id:unitId,board:g("e_board"),model:g("e_model"),year:g("e_year")?Number(g("e_year")):null,photo_url:d.url});
+    }catch(pe){toast("Фото не загрузилось: "+pe.message);}
+   }
+   S.snap=await api("snapshot");clearEdit();S.editId=null;toast("Сохранено");render();
+  }
+  else if(b.dataset.del!==undefined){
+   if(!confirm("Удалить единицу и всю её историю?"))return;
+   await api("unit_delete",{unit_id:Number(b.dataset.del)});
+   S.snap=await api("snapshot");toast("Удалено");render();
+  }
+  else if(b.dataset.mset!==undefined){
+   await api("mileage_set",{unit_id:Number(b.dataset.mset),mileage:Number(g("m_set"))});
+   S.snap=await api("snapshot");S.km=null;toast("Пробег обновлён");render();
+  }
+  else if(b.dataset.part!==undefined){S.partForm={unit_id:Number(b.dataset.part)};render();}
+  else if(b.dataset.pedit!==undefined){
+   const part=S.snap.parts.find(x=>x.id===Number(b.dataset.pedit));
+   if(part)S.partForm={unit_id:part.unit_id,part};
+   render();
+  }
+  else if(b.dataset.partSave!==undefined){
+   const uc=document.querySelector("#p_urg_row .chip.on");
+   const pf=S.partForm||{};
+   await api("part_save",{id:pf.part?pf.part.id:undefined,unit_id:Number(b.dataset.partSave),title:g("p_title"),status:(document.querySelector("#p_status .chip.on")||{dataset:{chip:"нужно"}}).dataset.chip,urgency:uc?uc.dataset.uchip:null,eta:g("p_eta")||null});
+   S.snap=await api("snapshot");S.partForm=null;toast("Запчасть сохранена");render();
+  }
+  else if(b.dataset.pdellast!==undefined){
+   await api("part_del_last",{unit_id:Number(b.dataset.pdellast)});
+   S.snap=await api("snapshot");toast("Последняя запчасть удалена");render();
+  }
+  else if(b.dataset.pclear!==undefined){
+   if(!confirm("Очистить все запчасти этой единицы?"))return;
+   await api("part_clear",{unit_id:Number(b.dataset.pclear)});
+   S.snap=await api("snapshot");toast("Запчасти очищены");render();
+  }
+  else if(b.dataset.hdellast!==undefined){
+   await api("trip_del_last",{unit_id:Number(b.dataset.hdellast)});
+   S.snap=await api("snapshot");toast("Последний выезд удалён");render();
+  }
+  else if(b.dataset.hclear!==undefined){
+   if(!confirm("Удалить историю поездок? (последний пробег сохранится)"))return;
+   await api("hist_clear",{unit_id:Number(b.dataset.hclear)});
+   S.snap=await api("snapshot");toast("История очищена");render();
+  }
+  else if(b.dataset.back){S.editOpen=null;S.dmg=null;S.km=null;S.mh=null;S.note=null;S.tripOpen=null;S.showReturn=null;render();}
+  else if(b.dataset.trip){S.tripOpen=S.editOpen;S.showReturn=null;S.km=null;S.mh=null;render();}
+  else if(b.dataset.tripc){S.tripOpen=null;render();}
+  else if(b.dataset.dmg){S.dmg=b.dataset.dmg==="yes";render();}
+  else if(b.dataset.dclose!==undefined){
+   await api("damage_close",{unit_id:Number(b.dataset.dclose)});
+   S.snap=await api("snapshot");toast("Повреждение убрано");render();
+  }
+  else if(b.dataset.ddismiss!==undefined){
+   await api("damage_dismiss",{unit_id:Number(b.dataset.ddismiss)});
+   S.snap=await api("snapshot");toast("Предупреждение скрыто");render();
+  }
+  else if(b.dataset.out){
+   const hours=S.hoursSel==="x"?(Number(S.hoursVal)||2):(Number(S.hoursSel)||2);
+   await api("mark",{unit_id:S.editOpen,type:"out",hours,mileage:Number(g("mileage"))||null,engine_hours:g("mh")?Number(g("mh")):null,fuel:0});
+   S.snap=await api("snapshot");S.km=null;S.mh=null;S.tripOpen=null;toast("Принято: выезд зафиксирован");render();
+  }
+  else if(b.dataset.in){
+   await api("mark",{unit_id:S.editOpen,type:"in",fuel:0,mileage:Number(g("mileage"))||null,engine_hours:g("mhin")?Number(g("mhin")):null,damage:S.dmg===true?"yes":"no",note:S.dmg===true?(S.note||g("note")):null});
+   S.snap=await api("snapshot");S.km=null;S.mh=null;S.dmg=null;S.note=null;S.showReturn=null;toast("Принято: возврат зафиксирован");render();
+  }
+ }catch(e){toast("Ошибка: "+e.message);}
+ finally{BUSY=false;}
+});
+
+document.addEventListener("change",async ev=>{
+ if(ev.target.id!=="e_file")return;
+ const f=ev.target.files[0];if(!f)return;
+ if(f.size>5*1024*1024){toast("Файл больше 5 МБ");return;}
+ try{
+  const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(f);});
+  S.ePhotoB64=b64;S.ePhotoType=f.type||"image/jpeg";
+  render();
+ }catch(e){toast("Ошибка: "+e.message);}
+});
+
+function gate(msg){
+ return `<div class="card" style="text-align:center">
+  <div style="margin-top:8px;font-weight:700">Открой приложение через кнопку меню бота</div>
+  ${msg?`<div class="mut" style="margin-top:6px">${esc(msg)}</div>`:""}
+  <button class="btn" onclick="boot()" style="margin-top:12px">Проверить снова</button>
+ </div>`;
+}
+async function snapWithRetry(){
+ let last;
+ for(let i=0;i<3;i++){
+  try{ return await api("snapshot"); }
+  catch(e){
+   last=e; const m=String(e.message||e);
+   if(/unauthorized|HTTP 401|подписка истекла/i.test(m)) throw e;
+   if(i<2) await new Promise(r=>setTimeout(r,800));
+  }
+ }
+ throw last;
+}
+async function boot(){
+ if(!tg.initData){
+  document.getElementById("app").innerHTML=gate("");
+  return;
+ }
+ let cached=null;try{cached=JSON.parse(localStorage.getItem("ga_snap")||"null");}catch(e){}
+ if(cached&&cached.garage_id){S.snap=cached;try{render();}catch(e){S.snap=null;}}
+ try{
+  S.snap=await snapWithRetry();
+  try{localStorage.setItem("ga_snap",JSON.stringify(S.snap));}catch(e){}
+  render();
+ }catch(e){
+  const m=String(e.message||e);
+  if(/unauthorized|HTTP 401/i.test(m)){
+   if(S.snap)toast("Ошибка: "+m);
+   else document.getElementById("app").innerHTML=gate(m);
+   return;
+  }
+  if(S.snap)toast("Ошибка: "+m);
+  else document.getElementById("app").innerHTML=`<div class="card">Ошибка: ${esc(m)}<br><span class="mut">Нет связи с сервером. Проверь интернет и открой заново</span></div>`;
+ }
+}
+boot();
+</script>
+</body>
+</html>
