@@ -1,0 +1,5 @@
+-- Historical copy pointer: the applied incremental script lives at
+-- ../../legacy/sql/001_multitenant.sql
+--
+-- New numbered files start at 002 when we have a production-safe change.
+-- Do not apply inferred-current.sql to a populated database.
