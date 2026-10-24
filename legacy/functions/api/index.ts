@@ -827,7 +827,8 @@ Deno.serve(async (req) => {
     if (!m.data?.[0]) return json({ error: "нет такой отметки" }, 404);
     const row: any = {};
     if (p.mileage !== undefined) row.mileage = Number(p.mileage) || null;
-    if (p.mh !== undefined) row.engine_hours = Number(p.mh) || null;
+    const mhRaw = p.mh !== undefined ? p.mh : p.engine_hours;
+    if (mhRaw !== undefined) row.engine_hours = Number(mhRaw) || null;
     if (p.note !== undefined) row.note = p.note ? String(p.note).slice(0, 500) : null;
     if (!Object.keys(row).length) return json({ error: "нечего менять" }, 400);
     const { error } = await once(() => sb.from("marks").update(row).eq("id", id).eq("garage_id", ctx.garage_id));
@@ -837,7 +838,21 @@ Deno.serve(async (req) => {
 
   if (action === "trip_remove") {
     if (owner()) return json({ error: "owner only" }, 403);
-    const m = await once(() => sb.from("marks").select("id,unit_id,trip_id,at").eq("id", Number(p.out_id)).eq("garage_id", ctx.garage_id).limit(1));
+    const tripId = Number(p.trip_id);
+    if (p.out_id === undefined && tripId > 0) {
+      const tr = await once(() => sb.from("trips").select("id").eq("id", tripId).eq("garage_id", ctx.garage_id).limit(1));
+      if (!tr.data?.[0]) return json({ error: "нет такого маршрута" }, 404);
+      const md = await once(() => sb.from("marks").delete().eq("trip_id", tripId).eq("garage_id", ctx.garage_id));
+      if (md.error) return json({ error: "db: " + md.error.message }, 500);
+      const td = await once(() => sb.from("trip_units").delete().eq("trip_id", tripId));
+      if (td.error) return json({ error: "db: " + td.error.message }, 500);
+      const { error } = await once(() => sb.from("trips").delete().eq("id", tripId).eq("garage_id", ctx.garage_id));
+      if (error) return json({ error: "db: " + error.message }, 500);
+      return json({ ok: true });
+    }
+    const outId = Number(p.out_id ?? p.trip_id);
+    if (!outId) return json({ error: "нужен out_id или trip_id" }, 400);
+    const m = await once(() => sb.from("marks").select("id,unit_id,trip_id,at").eq("id", outId).eq("garage_id", ctx.garage_id).limit(1));
     const row = m.data?.[0];
     if (!row) return json({ error: "нет такой отметки" }, 404);
     if (row.trip_id) {

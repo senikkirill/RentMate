@@ -477,7 +477,7 @@ function histHTML(u){
   <div class="hist" style="margin-top:0;flex:1">${fmtDate(t.out.at)} · ${tripBoth(t,u)}${t.in&&t.in.damage?" ⚠":""} · ${whoLabel((t.in||t.out).who)}
   ${S.medit===t.out.id?markEditForm(t.out):""}
   </div>
-  ${isOwner()?`<span style="display:flex;gap:6px;flex:none"><button class="dbtn ok" data-medit="${t.out.id}">✎</button><button class="dbtn" data-tdel="${t.trip_id}">${IC_X}</button></span>`:""}
+  ${isOwner()?`<span style="display:flex;gap:6px;flex:none"><button class="dbtn ok" data-medit="${t.out.id}">✎</button><button class="dbtn" data-tdel-trip="${t.out.trip_id||""}" data-tdel-out="${t.out.id}">${IC_X}</button></span>`:""}
  </div></div>`).join("")||`<div class="card"><div class="mut">пусто</div></div>`}`;
 }
 
@@ -626,7 +626,7 @@ function render(){
 function clearEdit(){S.eBoard=null;S.eModel=null;S.eYear=null;S.eKm=null;S.eMh=null;S.ePhotoB64=null;S.ePhotoType=null;}
 
 document.addEventListener("click",async ev=>{
- const SEL="[data-nav],[data-lay],[data-det],[data-open],[data-edit],[data-edit2],[data-new],[data-eclose],[data-backcard],[data-save],[data-del],[data-mset],[data-stat],[data-part],[data-part-save],[data-pedit],[data-pmenu],[data-pdellast],[data-pclear],[data-hmenu],[data-hdellast],[data-hclear],[data-back],[data-trip],[data-tripc],[data-hchip],[data-out],[data-in],[data-ret],[data-retc],[data-dmg],[data-dclose],[data-ddismiss],[data-toset],[data-tosetall],[data-todone],[data-tomenu],[data-tomode],[data-chip],[data-uchip],[data-sadd],[data-sdel],[data-sgadd],[data-srole],[data-sren],[data-rnsave],[data-rncancel],[data-tripnew],[data-tclose],[data-upick],[data-th],[data-togo],[data-tfin],[data-tdone],[data-tdmg],[data-histview],[data-partsview],[data-tdel],[data-medit],[data-musave],[data-mucancel],[data-pdel],[data-gview],[data-gsw],[data-gl],[data-gdel],[data-photopick]";
+ const SEL="[data-nav],[data-lay],[data-det],[data-open],[data-edit],[data-edit2],[data-new],[data-eclose],[data-backcard],[data-save],[data-del],[data-mset],[data-stat],[data-part],[data-part-save],[data-pedit],[data-pmenu],[data-pdellast],[data-pclear],[data-hmenu],[data-hdellast],[data-hclear],[data-back],[data-trip],[data-tripc],[data-hchip],[data-out],[data-in],[data-ret],[data-retc],[data-dmg],[data-dclose],[data-ddismiss],[data-toset],[data-tosetall],[data-todone],[data-tomenu],[data-tomode],[data-chip],[data-uchip],[data-sadd],[data-sdel],[data-sgadd],[data-srole],[data-sren],[data-rnsave],[data-rncancel],[data-tripnew],[data-tclose],[data-upick],[data-th],[data-togo],[data-tfin],[data-tdone],[data-tdmg],[data-histview],[data-partsview],[data-tdel-trip],[data-tdel-out],[data-medit],[data-musave],[data-mucancel],[data-pdel],[data-gview],[data-gsw],[data-gl],[data-gdel],[data-photopick]";
  const b=ev.target.closest(SEL);
  if(!b)return;
  if(b.closest("summary"))ev.preventDefault();
@@ -770,9 +770,11 @@ document.addEventListener("click",async ev=>{
    await api("mark_update",{id:Number(b.dataset.musave),mileage:g("mu_km")?Number(g("mu_km")):null,engine_hours:g("mu_mh")?Number(g("mu_mh")):null});
    S.snap=await api("snapshot");S.medit=null;toast("Отметка обновлена");render();return;
   }
-  else if(b.dataset.tdel!==undefined){
+  else if(b.dataset.tdelOut!==undefined){
    if(!confirm("Удалить этот маршрут (выезд и возврат)?"))return;
-   await api("trip_remove",{trip_id:Number(b.dataset.tdel)});
+   const tripId=Number(b.dataset.tdelTrip||0);
+   const payload=tripId>0?{trip_id:tripId}:{out_id:Number(b.dataset.tdelOut)};
+   await api("trip_remove",payload);
    S.snap=await api("snapshot");toast("Маршрут удалён");render();return;
   }
   else if(b.dataset.pdel!==undefined){

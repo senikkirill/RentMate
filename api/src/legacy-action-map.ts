@@ -41,6 +41,6 @@ export const legacyActions: LegacyActionMap[] = [
   { action: "hist_clear", rest: "DELETE /api/organizations/:orgId/vehicles/:vehicleId/marks", status: "mapped" },
   { action: "trip_del_last", rest: "DELETE /api/organizations/:orgId/vehicles/:vehicleId/trips/last", status: "mapped" },
   { action: "trip_del", rest: "DELETE /api/organizations/:orgId/marks/:outId", status: "mapped" },
-  { action: "trip_remove", rest: "DELETE /api/organizations/:orgId/trips/:tripId", status: "bug-payload", note: "UI sends trip_id; API expects out_id" },
-  { action: "mark_update", rest: "PATCH /api/organizations/:orgId/marks/:markId", status: "bug-payload", note: "UI sends engine_hours; API reads mh" },
+  { action: "trip_remove", rest: "DELETE /api/organizations/:orgId/trips/:tripId", status: "mapped", note: "trip_id removes whole route; out_id removes one unit outing" },
+  { action: "mark_update", rest: "PATCH /api/organizations/:orgId/marks/:markId", status: "mapped", note: "accepts mh or engine_hours" },
 ];

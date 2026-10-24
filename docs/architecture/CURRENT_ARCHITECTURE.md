@@ -171,11 +171,6 @@ Implemented in `legacy/functions/api/index.ts`:
 `unit_delete`, `photo_upload`, `staff_save`, `staff_del`, `part_del_last`,
 `trip_del_last`, `part_del`, `trip_del`, `mark_update`, `trip_remove`.
 
-Payload mismatches:
-
-- UI `mark_update` sends `engine_hours`; API reads `payload.mh`.
-- UI `trip_remove` sends `trip_id`; API expects `out_id`.
-
 `market_price` has no UI in the HTML.
 
 ## Implicit business rules
@@ -221,11 +216,10 @@ or typecheck for the legacy app.
 
 See `SECURITY.md` for security. Functional issues:
 
-1. `mark_update` / `trip_remove` payload field mismatches.
-2. `snapshot` loads **all** marks for the garage (no pagination).
-3. Notifications keyed off `users.garage_id`, not memberships.
-4. Dual columns `board` and `board_no`; UI uses `board` for catalog and
+1. `snapshot` loads **all** marks for the garage (no pagination).
+2. Notifications keyed off `users.garage_id`, not memberships.
+3. Dual columns `board` and `board_no`; UI uses `board` for catalog and
    `board_no` for open trips.
-5. Column `name` referenced via `["n","a","m","e"].join("")` in client and
+4. Column `name` referenced via `["n","a","m","e"].join("")` in client and
    server (obfuscation, not a security control).
-6. Full schema, indexes, and RLS policies are not in version control.
+5. Full schema, indexes, and RLS policies are not in version control.
