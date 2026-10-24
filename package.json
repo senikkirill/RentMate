@@ -9,7 +9,7 @@
   "scripts": {
     "dev:web": "npm run dev -w @rentmate/web",
     "dev:api": "npm run build -w @rentmate/types && npm run build -w @rentmate/database && npm run build -w @rentmate/api && npm run start -w @rentmate/api",
-    "typecheck": "npm run build -w @rentmate/types && npm run typecheck -w @rentmate/types && npm run typecheck -w @rentmate/database && npm run typecheck -w @rentmate/ui && npm run typecheck -w @rentmate/api && npm run typecheck -w @rentmate/miniapp && npm run typecheck -w @rentmate/web",
+    "typecheck": "npm run build -w @rentmate/types && npm run build -w @rentmate/database && npm run build -w @rentmate/ui && npm run typecheck -w @rentmate/types && npm run typecheck -w @rentmate/database && npm run typecheck -w @rentmate/ui && npm run typecheck -w @rentmate/api && npm run typecheck -w @rentmate/miniapp && npm run typecheck -w @rentmate/web",
     "build": "npm run build -w @rentmate/types && npm run build -w @rentmate/database && npm run build -w @rentmate/ui && npm run build -w @rentmate/api && npm run build -w @rentmate/miniapp && npm run build -w @rentmate/web",
     "test": "npm run build -w @rentmate/types && npm run test -w @rentmate/types && npm run verify:legacy",
     "lint": "npm run lint --workspaces --if-present",
