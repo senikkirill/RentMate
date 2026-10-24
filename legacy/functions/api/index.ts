@@ -317,6 +317,19 @@ Deno.serve(async (req) => {
     return json({ ok: true });
   }
 
+  if (action === "staff_rename") {
+    if (ctx.role !== "owner") return json({ error: "owner only" }, 403);
+    const tid = String(p.tg_id || "").trim();
+    const nm = String(p[FIELD_KEY] || "").trim().slice(0, 18);
+    if (!tid || !nm) return json({ error: "нужны tg_id и имя" }, 400);
+    const mem = await once(() => sb.from("memberships").select("role").eq("tg_id", tid).eq("garage_id", ctx.garage_id).limit(1));
+    if (!mem.data?.[0]) return json({ error: "нет такого участника" }, 404);
+    if (mem.data[0].role === "owner") return json({ error: "нельзя переименовать владельца" }, 400);
+    const { error } = await once(() => sb.from("users").update({ [FIELD_KEY]: nm }).eq("tg_id", tid));
+    if (error) return json({ error: "db: " + error.message }, 500);
+    return json({ ok: true });
+  }
+
   if (action === "trip_open") {
     const units = Array.isArray(p.units) ? p.units : [];
     const hours = Number(p.planned_hours) > 0 ? Number(p.planned_hours) : 2;
@@ -547,6 +560,35 @@ Deno.serve(async (req) => {
     }).eq("id", p.unit_id).eq("garage_id", ctx.garage_id));
     if (error) return json({ error: "db: " + error.message }, 500);
     return json({ ok: true });
+  }
+
+  if (action === "service_set_all") {
+    if (owner()) return json({ error: "owner only" }, 403);
+    const hasKm = p.interval_km !== undefined && p.interval_km !== null;
+    const hasMh = p.interval_mh !== undefined && p.interval_mh !== null;
+    if (!hasKm && !hasMh) return json({ error: "нужен interval_km или interval_mh" }, 400);
+    const interval_km = hasKm ? Number(p.interval_km) || null : null;
+    const interval_mh = hasMh ? Number(p.interval_mh) || null : null;
+    const list = await once(() => sb.from("units").select("id").eq("garage_id", ctx.garage_id));
+    if (list.error) return json({ error: "db: " + list.error.message }, 500);
+    for (const u of list.data || []) {
+      const row: Record<string, number | null> = {};
+      if (hasKm) {
+        const lastKm = await lastMileageRow(u.id);
+        if (lastKm.error) return json({ error: "db: " + lastKm.error.message }, 500);
+        row.service_interval_km = interval_km;
+        row.service_base_km = lastKm.data?.[0]?.mileage ?? null;
+      }
+      if (hasMh) {
+        const lastMh = await lastEngineRow(u.id);
+        if (lastMh.error) return json({ error: "db: " + lastMh.error.message }, 500);
+        row.service_interval_mh = interval_mh;
+        row.service_base_mh = lastMh.data?.[0]?.engine_hours ?? null;
+      }
+      const { error } = await once(() => sb.from("units").update(row).eq("id", u.id).eq("garage_id", ctx.garage_id));
+      if (error) return json({ error: "db: " + error.message }, 500);
+    }
+    return json({ ok: true, count: (list.data || []).length });
   }
 
   if (action === "service_done") {
