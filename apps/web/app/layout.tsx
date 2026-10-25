@@ -1,16 +1,15 @@
 import type { ReactNode } from "react";
+import "./globals.css";
 
 export const metadata = {
-  title: "RentMate",
-  description: "Rental operations SaaS",
+  title: "Мэйт OS",
+  description: "Управление прокатом техники",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body style={{ fontFamily: "system-ui, sans-serif", margin: 32 }}>
-        {children}
-      </body>
+    <html lang="ru">
+      <body>{children}</body>
     </html>
   );
 }

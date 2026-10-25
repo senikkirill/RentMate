@@ -1,5 +1,5 @@
 /**
- * Shared UI package — placeholder for web + Mini App design tokens later.
- * Do not import the legacy HTML into this package.
+ * Shared UI — Mate OS design tokens and (later) components.
+ * Do not import legacy/miniapp HTML into this package.
  */
-export const productName = "RentMate";
+export { brandName, productName, mateColors, mateCssVar } from "./tokens.js";

@@ -1,0 +1,19 @@
+@import "@rentmate/ui/tokens.css";
+
+html {
+  background: var(--mate-bg);
+  color: var(--mate-text);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--mate-font-sans);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--mate-accent);
+}
