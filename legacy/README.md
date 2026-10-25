@@ -18,4 +18,11 @@ Deploy paths are unchanged until we document a new one: upload the HTML to
 `APP_URL`, deploy the two Edge Functions, apply SQL manually on the existing
 Supabase Postgres.
 
+Before deploying the `api` Edge Function, sync shared domain code:
+
+```bash
+npm run prepare:edge-domain
+cp -R legacy/functions/api supabase/functions/api
+```
+
 See `docs/architecture/` for how this maps to the target SaaS.

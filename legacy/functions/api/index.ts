@@ -1,4 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { validateMeterMonotonicity } from "./_domain/fleet/meter.js";
+import { isStaffOnly } from "./_domain/access/roles.js";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -122,21 +124,14 @@ async function lastReading(unit_id: number, garage_id: number) {
   return { km: km == null ? null : Number(km), mh: mh == null ? null : Number(mh) };
 }
 
-function lessThan(label: string, val: any, cur: number | null): string | null {
-  if (val === null || val === undefined || val === "") return null;
-  const n = Number(val);
-  if (Number.isNaN(n)) return null;
-  if (cur !== null && n < cur) return `${label}: значение не может быть меньше текущего (${cur})`;
-  return null;
-}
-
 async function meterCheck(unit_id: number, mileage: any, mh: any, pfx = ""): Promise<string | null> {
   const cur = await lastReading(unit_id, ctx.garage_id);
-  const errs = [
-    lessThan(pfx + "пробег", mileage, cur.km),
-    lessThan(pfx + "моточасы", mh, cur.mh),
-  ].filter(Boolean) as string[];
-  return errs.length ? errs.join("; ") : null;
+  return validateMeterMonotonicity({
+    current: { km: cur.km, mh: cur.mh },
+    mileage,
+    mh,
+    prefix: pfx,
+  });
 }
 
 async function servicePush(unit_id: number, km: any, mh: any, prevKm: any, prevMh: any) {
@@ -165,7 +160,7 @@ Deno.serve(async (req) => {
   if (!c) return json({ error: "unauthorized: " + (authFail || "причина неизвестна") }, 401);
 
   const { action, payload: p = {} } = await req.json().catch(() => ({}));
-  const owner = () => ctx.role !== "owner" && ctx.role !== "admin";
+  const owner = () => isStaffOnly(ctx.role);
 
   if (action !== "snapshot" && !subActive()) return json({ error: "подписка истекла" }, 402);
 
