@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { validateMeterMonotonicity } from "./_domain/fleet/meter.js";
 import { isStaffOnly } from "./_domain/access/roles.js";
+import { isSubscriptionActive, isSubscriptionGateClosed } from "./_domain/subscription/gate.js";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -56,7 +57,7 @@ async function notify(garage_id: number, text: string, target: "all" | "owner" =
 
 type Ctx = { user_id: string; garage_id: number; role: string; expires_at: string | null };
 let ctx: Ctx;
-const subActive = () => !ctx.expires_at || new Date(ctx.expires_at) > new Date();
+const subActive = () => isSubscriptionActive(ctx.expires_at);
 
 let authFail = "";
 async function auth(req: Request): Promise<Ctx | null> {
@@ -162,7 +163,7 @@ Deno.serve(async (req) => {
   const { action, payload: p = {} } = await req.json().catch(() => ({}));
   const owner = () => isStaffOnly(ctx.role);
 
-  if (action !== "snapshot" && !subActive()) return json({ error: "подписка истекла" }, 402);
+  if (isSubscriptionGateClosed(action, ctx.expires_at)) return json({ error: "подписка истекла" }, 402);
 
   if (action === "snapshot") {
     const [u, m, pt, stf, tr, gn, mems] = await Promise.all([
