@@ -20,3 +20,17 @@ test("entityStatus discriminates current vs planned", () => {
   assert.equal(isCurrent(org), true);
   assert.equal(isPlanned(org), false);
 });
+
+test("User accepts optional auth fields after migration 003", () => {
+  const u = {
+    entityStatus: "current" as const,
+    telegramId: "123",
+    activeOrganizationId: 1,
+    role: "owner" as const,
+    name: "Owner",
+    createdAt: new Date(0).toISOString(),
+    authUserId: "00000000-0000-4000-8000-000000000001",
+    email: "owner@example.com",
+  };
+  assert.equal(u.email, "owner@example.com");
+});

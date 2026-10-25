@@ -3,3 +3,5 @@
 --
 -- New numbered files start at 002 when we have a production-safe change.
 -- Do not apply inferred-current.sql to a populated database.
+--
+-- 003_auth_email_identity.sql — email/web auth columns on users (see docs/architecture/AUTH_EMAIL.md)

@@ -15,6 +15,9 @@ export type OrganizationId = number;
 
 export type TelegramUserId = string;
 
+/** Supabase Auth user id (`auth.users.id`). Present after migration 003 + web signup. */
+export type AuthUserId = string;
+
 export interface Organization {
   readonly entityStatus: "current";
   id: OrganizationId;
@@ -26,11 +29,27 @@ export interface Organization {
 
 export interface User {
   readonly entityStatus: "current";
+  /** Primary key in live DB today. Empty string only in types/tests for email-only placeholders. */
   telegramId: TelegramUserId;
   activeOrganizationId: OrganizationId;
   role: MembershipRole;
   name: string;
   createdAt: string;
+  /** Set after `003_auth_email_identity.sql` and Supabase Auth signup. */
+  authUserId?: AuthUserId | null;
+  email?: string | null;
+}
+
+/** Row shape for web session (Supabase Auth + app user). */
+export interface WebSessionUser {
+  readonly entityStatus: "current";
+  authUserId: AuthUserId;
+  email: string;
+  activeOrganizationId: OrganizationId;
+  role: MembershipRole;
+  name: string;
+  /** Set when the same person also uses Telegram. */
+  telegramId?: TelegramUserId | null;
 }
 
 export interface Membership {
